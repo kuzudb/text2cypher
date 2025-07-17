@@ -141,9 +141,13 @@ The results for the first 6 cases are shown in the following heatmaps:
 
 ![Pruned schema results](results/pruned_schema_results.png)
 
+### Observations
+
 Pruning the schema helps the larger, more powerful models (`openai/gpt-4.1`, `google/gemini-2.0-flash`,
 `google/gemini-2.5-flash`, `mistralai/devstral-medium`) to generate better Cypher than when the full
-full schema is passed to the prompt. However, smaller models like `openai/gpt-4.1-nano` still suffer
+full schema is passed to the prompt.
+
+However, smaller models like `openai/gpt-4.1-nano` still suffer
 when pruning the schema, meaning that some level of fine-tuning or prompt optimization is needed
 to improve the performance of smaller models to generate good Cypher that aligns with the user's
 question.
