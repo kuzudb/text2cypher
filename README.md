@@ -25,9 +25,26 @@ uv run download_dataset.py
 uv run create_graph.py
 ```
 
-## Run tests
+## Sample queries
 
-The test suites in `tests/` are designed to check for the following aspects:
+Run sample queries on the graph using the scripts with the name `query_*.py`.
+
+```bash
+# Run the pipeline using JSON, XML or YAML schema with pruning
+uv run query_graph.py
+
+# Run the pipeline using DDL schema with pruning
+uv run query_graph_ddl_schema.py
+
+# Run the pipeline using schema compression
+uv run query_graph_compressed.py
+```
+
+## Benchmarks
+
+The benchmarks are presented as pytest test suites in the `tests/` directory.
+
+The test suites are designed to check for the following aspects:
 - Is JSON, XML or YAML schema desirable for the given LLM to generate good Cypher?
 - Is pruning of the schema desirable for the given LLM to generate good Cypher?
 
