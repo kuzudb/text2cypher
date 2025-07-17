@@ -176,3 +176,4 @@ cython_debug/
 csv/
 *.kuzu
 *.kuzu.lock
+baml_client
