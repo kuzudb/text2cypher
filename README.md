@@ -1,4 +1,6 @@
-# Text2Cypher: Benchmarking and Improving Results for Graph RAG
+# Text2Cypher benchmarks
+
+## Improving Results for Graph RAG
 
 This repo contains example code for testing and benchmarking the performance of different models
 and prompts when doing `Text2Cypher` for Graph RAG in Kuzu. The prompts are managed in BAML.
