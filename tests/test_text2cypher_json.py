@@ -19,7 +19,7 @@ def run_query(
     db_manager: KuzuDatabaseManager, schema: str, question: str
 ) -> tuple[str, list[Any] | None]:
     """
-    Run a query asynchronously on the database.
+    Run a query on the database.
     """
     response = b.Text2Cypher(question, schema)
     query = response.cypher
