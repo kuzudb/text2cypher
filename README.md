@@ -9,10 +9,16 @@ pipeline for agentic workflows downstream.
 
 ## Setup
 
-Use `uv` to install the dependencies:
+[Install uv](https://docs.astral.sh/uv/getting-started/installation/) and use it to manage the dependencies:
 
 ```bash
 uv sync
+```
+
+To add any additional dependencies, use the `uv add` command ad follows:
+
+```bash
+uv add <package_name>
 ```
 
 ## Dataset
@@ -21,7 +27,10 @@ We use the [LDBC social network benchmark](https://ldbcouncil.org/benchmarks/snb
 which can be downloaded and loaded into Kuzu as shown below.
 
 ```bash
+# Download the LDBC-1 dataset
 uv run download_dataset.py
+
+# Create the graph in Kuzu
 uv run create_graph.py
 ```
 
