@@ -2,7 +2,8 @@
 
 ## Improving Results for Graph RAG
 
-This repo contains example code for testing and benchmarking the performance of different models
+This repo contains example code for [this blog post](https://blog.kuzudb.com/post/improving-text2cypher-for-graphrag-via-schema-pruning/),
+where we test and benchmark the performance of different models
 and prompts when doing `Text2Cypher` for Graph RAG in Kuzu. The prompts are managed in BAML.
 
 The aim of the test suites shown is to understand the impact of schema formatting and pruning on
