@@ -1,0 +1,11 @@
+services:
+  explorer:
+    container_name: ex_kuzu_db
+    image: kuzudb/explorer:0.11.0
+    environment:
+      MODE: READ_ONLY
+      KUZU_FILE: ldbc_1.kuzu
+    ports:
+      - 8000:8000
+    volumes:
+      - ./:/database

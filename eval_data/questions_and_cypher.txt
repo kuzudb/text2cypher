@@ -1,0 +1,259 @@
+-------------------------------------------------------------
+Category 1: Exact Matching Queries
+-------------------------------------------------------------
+Q1: What are the names of people who live in "Glasgow", and are interested in the tag "Napoleon"?
+
+MATCH (p:Person)-[:personIsLocatedIn]->(pl:Place),
+(p)-[:hasInterest]->(t:Tag)
+WHERE pl.name = "Glasgow" AND t.name = "Napoleon"
+RETURN p.firstName, p.lastName
+
+A1: Thomas Brown
+
+Q2: Show me the IDs of all posts by "Lei Zhang" whose content has the term "Zulu".
+
+MATCH (p:Person)<-[:postHasCreator]-(post:Post)
+WHERE p.firstName = "Lei" AND p.lastName = "Zhang" AND post.content CONTAINS "Zulu"
+RETURN post.ID
+
+A2: [2061586474857, 2061586474860]
+
+Q3: What is the name of the person who created post ID 962077547172, and where did they study?
+
+MATCH (p:Post {ID:962077547172})-[:postHasCreator]->(person:Person),
+(person)-[:studyAt]->(org:Organisation)
+RETURN person.firstName, person.lastName, org.name
+
+A3: Mads Haugland, Norwegian_School_of_Sport_Sciences
+
+Q4: Give me the comment IDs of "Alfredo Gomez" of size greater than 100
+
+MATCH (p:Person)<-[:commentHasCreator]-(c:Comment)
+WHERE p.firstName = "Alfredo"
+  AND p.lastName = "Gomez"
+  AND size(c.content) > 100
+RETURN c.ID
+
+A4: 1924145496676
+
+Q5: Give me the full names of persons with last name "Choi" who are members of forums with titles containing "John Brown".
+
+MATCH (f:Forum)-[:hasMember]->(p:Person)
+WHERE toLower(f.title) CONTAINS toLower("John Brown") AND toLower(p.lastName) CONTAINS toLower("Choi")
+RETURN DISTINCT p.firstName, p.lastName
+LIMIT 10
+
+A5: Akihiko Choi
+
+Q6: List the IDs of employees who work at "Nova_Air" and whose last name is "Bravo".
+
+MATCH (p:Person)-[:workAt]->(o:Organisation)
+WHERE o.name = "Nova_Air" AND p.lastName CONTAINS "Bravo"
+RETURN p.ID
+
+A6: [15393162799645, 28587302332692, 17592186046501, 19791209310595, 15393162791641]
+
+Q7: In which places did the user ID 1786706544494 make comments that replied to posts tagged with "Jamaica"?
+
+A7: ["Brazil", "Mexico", "Belaru", "Kenya"]
+
+Q8: What are the distinct IDs of persons born after 1990 who are moderators of Forums containing the term "Emilio Fernandez"?
+
+MATCH (p:Person)<-[:hasModerator]-(f:Forum)
+WHERE p.birthday > DATE("1990-01-01") AND f.title CONTAINS "Emilio Fernandez"
+RETURN DISTINCT p.ID
+
+A8: 13194139534410
+
+Q9: Which persons with the last name "Johansson" know a person who studied at a university located in "Tallinn"?
+
+MATCH (p:Person)-[:knows]->(p2:Person)-[:studyAt]->(o:Organisation)-[:organisationIsLocatedIn]->(l:Place)
+WHERE l.name = "Tallinn" AND p.lastName = "Johansson"
+RETURN p
+
+A9: 1242, Hans Johansson
+
+Q10: What are the unique IDs of persons who commented on posts that have the tag "Cate_Blanchett"?
+
+A10:[24189255819727, 8796093029267]
+
+-------------------------------------------------------------
+Category 2: Counting & Aggregation Queries
+-------------------------------------------------------------
+
+Q1: Which organization that's not of the type "university" has the most persons working in them, and how many employees do they have?
+
+MATCH (p:Person)-[:workAt]->(o:Organisation)
+WHERE o.type <> "university"
+RETURN COUNT(DISTINCT p.ID) AS num_e, o.name
+ORDER BY num_e DESC
+LIMIT 1
+
+A1: MDLR_Airlines, 190
+
+Q2: Count the total number of comments (whose content is not null) created by people living in "Berlin".
+
+MATCH (c:Comment)-[:commentHasCreator]->(p2:Person)-[:personisLocatedIn]->(l:Place)
+WHERE c.content IS NOT NULL AND l.name = "Berlin"
+RETURN COUNT(DISTINCT c.ID)
+
+A2: 3229
+
+Q3: What is the total number of persons who liked comments created by "Rafael Alonso"?
+
+MATCH (p:Person)<-[:commentHasCreator]-(c:Comment)<-[:likeComment]-(p2:Person)
+WHERE p.firstName = "Rafael" AND p.lastName = "Alonso"
+RETURN COUNT(DISTINCT p2) AS num_persons
+
+A3: 3834
+
+Q4: How many forums are there with tags belonging to the "Athlete" tagclass?
+
+MATCH (f:Forum)-[:forumHasTag]->(:Tag)-[:hasType]->(:TagClass {name: "Athlete"})
+RETURN COUNT(f.ID)
+
+A4: 37
+
+Q5: What is the total number of forums moderated by employees of "Air_Tanzania"?.
+
+MATCH (f:Forum)-[:hasModerator]->(p:Person)-[:workAt]->(o:Organisation)
+WHERE o.name = "Air_Tanzania"
+RETURN COUNT(DISTINCT f)
+
+A5: 278
+
+Q6: How many posts with content containing the term "Copernicus" were created by persons located in Mumbai?
+
+MATCH (p:Person)-[:personIsLocatedIn]->(l:Place)<-[:postIsLocatedIn]-(p2:Post)
+WHERE l.name = "Mumbai" AND p2.content CONTAINS "Copernicus"
+RETURN COUNT(p2)
+
+A6: 3
+
+Q7: For people who studied at "Indian_Institute_of_Science", what tag are they most interested in?
+
+MATCH (p:Person)-[:studyAt]->(o:Organisation), (p)-[:hasInterest]->(t:Tag)
+WHERE o.name = "Indian_Institute_of_Science"
+RETURN t.name, COUNT(t) AS tag_count
+ORDER BY tag_count DESC
+LIMIT 1
+
+A7: Hamid_Karzai, 32
+
+Q8: How many people studying at "The_Oxford_Educational_Institutions" have an interest in the tag "William_Shakespeare"?
+
+MATCH (p:Person)-[:studyAt]->(o:Organisation), (p)-[:hasInterest]->(t:Tag)
+WHERE o.name = "The_Oxford_Educational_Institutions" AND t.name = "William_Shakespeare"
+RETURN COUNT(p) AS num_p
+
+A8: 20
+
+Q9: In which place are there the most comments whose tag contains the term "Copernicus", and how many comments are there?
+
+MATCH (c:Comment)-[:commentHasTag]->(t:Tag), (c)-[:commentIsLocatedIn]->(l:Place)
+WHERE t.name CONTAINS "Copernicus"
+RETURN l.name, COUNT(c) AS comment_count
+ORDER BY comment_count DESC
+LIMIT 1
+
+A9: India, 242
+
+Q10: How many comments whose contents contain the term "World War II" are larger than 1000 characters in size?
+
+MATCH (c:Comment)-[:commentHasCreator]->(p:Person)
+WHERE c.content CONTAINS "World War II" AND size(c.content) > 1000
+RETURN count(c) AS long_comment_count
+
+Q10: 3
+
+-------------------------------------------------------------
+Category 3: Boolean (Yes/No) Queries
+-------------------------------------------------------------
+
+Q1: Has the person named "Bill Moore" liked the post with ID 1649268446863?
+
+MATCH (p:Post)<-[:likePost]-(p2:Person)
+WHERE p2.firstName = "Bill" AND p2.lastName = "Moore" AND p.ID = 1649268446863
+RETURN p.ID
+
+A1: Yes
+
+Q2: Did anyone who works at "Linxair" create a comment that replied to a post?
+
+MATCH (p:Person)-[:workAt]->(o:Organisation), (c:Comment)-[:replyOfPost]->(p2:Post), (c)-[:commentHasCreator]->(p)
+WHERE o.name = "Linxair"
+RETURN p2.ID
+LIMIT 10
+
+A2: Yes
+
+Q3: Is there a person with the last name "Gurung" who's a moderator of a forum with the tag "Norah_Jones"?
+
+MATCH (p:Person)<-[:hasModerator]-(f:Forum)-[:forumHasTag]->(t:Tag)
+WHERE t.name = "Norah_Jones" AND p.lastName = "Gurung"
+RETURN p.lastName
+
+A3: Yes
+
+Q4: Is there a person who lives in "Paris" and has an interest in the "Cate_Blanchett"?
+
+MATCH (p:Person)-[:personIsLocatedIn]->(l:Place), (p)-[:hasInterest]->(t:Tag)
+WHERE l.name = "Paris" AND t.name = "Cate_Blanchett"
+RETURN p.ID, t.name
+
+A4: No
+
+Q5: Are there any comments created by person that reply to a post also created by the same person?
+
+MATCH (c:Comment)-[r1:commentHasCreator]->(p:Person)<-[r2:postHasCreator]-(post:Post)<-[r3:replyOfPost]-(c)
+RETURN * LIMIT 10;
+
+A5: No
+
+Q6: Does "Amit Singh" know anyone who has studied at "MIT_School_of_Engineering"?
+
+MATCH (p:Person)-[:studyAt]->(o:Organisation), (p)-[:knows]->(p2:Person)
+WHERE o.name = "MIT_School_of_Engineering"
+  AND p.firstName = "Amit"
+  AND p.lastName = "Singh"
+RETURN p2.ID
+LIMIT 10
+
+A6: No
+
+Q7: Are there any forums with the tag that person ID 10995116287854 is a member of?
+
+MATCH (f:Forum)-[:hasMember]->(p:Person), (f)-[:forumHasTag]->(t:Tag)
+WHERE t.name = "Benjamin_Franklin"
+RETURN f.ID
+LIMIT 10
+
+A7: Yes
+
+Q8: Did any person from Toronto create a comment with the tag "Winston_Churchill"?
+
+MATCH (c:Comment)-[:commentHasCreator]->(p2:Person), (p2)-[:personIsLocatedIn]->(l:Place), (c)-[:commentHasTag]->(t:Tag)
+WHERE l.name = "Toronto" AND t.name = "Winston_Churchill"
+RETURN p2.ID
+LIMIT 10
+
+A8: Yes
+
+Q9: Is it true that there are people located in Manila who are interested in a tag that belongs to the type "BritishRoyalty"?
+
+MATCH (t:Tag)-[:hasType]->(t2:Tagclass),
+      (p:Person)-[:hasInterest]->(t),
+      (p)-[:personIsLocatedIn]->(l:Place)
+WHERE t2.name = "BritishRoyalty" AND l.name = "Manila"
+RETURN p.ID
+LIMIT 10
+
+A9: Yes
+
+Q10: Has the person "Justine Fenter" written a post using the "Safari" browser?
+
+MATCH (p:Person)<-[:postHasCreator]-(post:Post) WHERE toLower(p.firstName) CONTAINS toLower('Justine')
+AND toLower(p.lastName) CONTAINS toLower('Fenter') AND toLower(post.browserUsed) CONTAINS toLower('Safari')
+RETURN COUNT(post) > 0 AS hasWrittenPostWithSafari
+
+A10: No

@@ -25,9 +25,26 @@ uv run download_dataset.py
 uv run create_graph.py
 ```
 
-## Run tests
+## Sample queries
 
-The test suites in `tests/` are designed to check for the following aspects:
+Run sample queries on the graph using the scripts with the name `query_*.py`.
+
+```bash
+# Run the pipeline using JSON, XML or YAML schema with pruning
+uv run query_graph.py
+
+# Run the pipeline using DDL schema with pruning
+uv run query_graph_ddl_schema.py
+
+# Run the pipeline using schema compression
+uv run query_graph_compressed.py
+```
+
+## Benchmarks
+
+The benchmarks are presented as pytest test suites in the `tests/` directory.
+
+The test suites are designed to check for the following aspects:
 - Is JSON, XML or YAML schema desirable for the given LLM to generate good Cypher?
 - Is pruning of the schema desirable for the given LLM to generate good Cypher?
 
@@ -124,9 +141,13 @@ The results for the first 6 cases are shown in the following heatmaps:
 
 ![Pruned schema results](results/pruned_schema_results.png)
 
+### Observations
+
 Pruning the schema helps the larger, more powerful models (`openai/gpt-4.1`, `google/gemini-2.0-flash`,
 `google/gemini-2.5-flash`, `mistralai/devstral-medium`) to generate better Cypher than when the full
-full schema is passed to the prompt. However, smaller models like `openai/gpt-4.1-nano` still suffer
+full schema is passed to the prompt.
+
+However, smaller models like `openai/gpt-4.1-nano` still suffer
 when pruning the schema, meaning that some level of fine-tuning or prompt optimization is needed
 to improve the performance of smaller models to generate good Cypher that aligns with the user's
 question.

@@ -1,0 +1,114 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.2, pytest-8.4.1, pluggy-1.6.0
+rootdir: /Users/prrao/code/text2cypher
+configfile: pyproject.toml
+collected 30 items
+
+tests/test_text2cypher_json.py ..........F...F...............            [100%]
+
+=================================== FAILURES ===================================
+____________________________ test_suite_1b_json[q0] ____________________________
+
+q = {'expected_values': ['MDLR_Airlines', 190], 'question': 'Which organization NOT of the type "university" has the most employees, and how many employees do they have?'}
+db_manager = <utils.KuzuDatabaseManager object at 0x1013e86e0>
+
+    @pytest.mark.parametrize("q", suite_1b)
+    def test_suite_1b_json(q, db_manager):
+        schema_pruned = prune_json_schema(db_manager, q["question"])
+>       _run_test_suite(db_manager, str(schema_pruned), [q])
+
+tests/test_text2cypher_json.py:68: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x1013e86e0>
+schema = "{'nodes': [{'label': 'Organisation', 'properties': [{'name': 'type', 'type': 'STRING'}, {'name': 'name', 'type': 'STR...Person', 'properties': []}], 'edges': [{'label': 'workAt', 'from': 'Person', 'to': 'Organisation', 'properties': []}]}"
+test_cases = [{'expected_values': ['MDLR_Airlines', 190], 'question': 'Which organization NOT of the type "university" has the most employees, and how many employees do they have?'}]
+expected_boolean = False
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {'MDLR_Airlines', 190} in result {'SonAir', 5} for question: Which organization NOT of the type "university" has the most employees, and how many employees do they have?
+E             Cypher query: MATCH (o1:Organisation) WHERE toLower(o1.type) <> 'university' WITH o1, SIZE((:Person)-[:workAt]->(o1)) AS numEmployees ORDER BY numEmployees DESC LIMIT 1 RETURN o1.name, numEmployees
+E           assert {'MDLR_Airlines', 190} <= {'SonAir', 5}
+E             
+E             Extra items in the left set:
+E             'MDLR_Airlines'
+E             190
+
+tests/test_text2cypher_json.py:51: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{'nodes': [{'label': 'Organisation', 'properties': [{'name': 'type', 'type': 'STRING'}, {'name': 'name', 'type': 'STRING'}]}, {'label': 'Person', 'properties': []}], 'edges': [{'label': 'workAt', 'from_': 'Person', 'to': 'Organisation', 'properties': []}]}
+____________________________ test_suite_1b_json[q4] ____________________________
+
+q = {'expected_values': [278], 'question': 'What is the total number of forums moderated by employees of "Air_Tanzania"?.'}
+db_manager = <utils.KuzuDatabaseManager object at 0x1014020d0>
+
+    @pytest.mark.parametrize("q", suite_1b)
+    def test_suite_1b_json(q, db_manager):
+        schema_pruned = prune_json_schema(db_manager, q["question"])
+>       _run_test_suite(db_manager, str(schema_pruned), [q])
+
+tests/test_text2cypher_json.py:68: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x1014020d0>
+schema = "{'nodes': [{'label': 'Forum', 'properties': [{'name': 'ID', 'type': 'INT64'}]}, {'label': 'Organisation', 'properties...m', 'to': 'Person', 'properties': []}, {'label': 'workAt', 'from': 'Person', 'to': 'Organisation', 'properties': []}]}"
+test_cases = [{'expected_values': [278], 'question': 'What is the total number of forums moderated by employees of "Air_Tanzania"?.'}]
+expected_boolean = False
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {278} in result {0} for question: What is the total number of forums moderated by employees of "Air_Tanzania"?.
+E             Cypher query: MATCH (o1:Organisation)<-[r1:workAt]-(p1:Person)-[r2:hasModerator]->(f1:Forum) WHERE toLower(o1.name) CONTAINS toLower('Air_Tanzania') RETURN count(DISTINCT f1.ID)
+E           assert {278} <= {0}
+E             
+E             Extra items in the left set:
+E             278
+
+tests/test_text2cypher_json.py:51: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{'nodes': [{'label': 'Forum', 'properties': [{'name': 'ID', 'type': 'INT64'}]}, {'label': 'Organisation', 'properties': [{'name': 'name', 'type': 'STRING'}]}, {'label': 'Person', 'properties': [{'name': 'ID', 'type': 'INT64'}]}], 'edges': [{'label': 'hasModerator', 'from_': 'Forum', 'to': 'Person', 'properties': []}, {'label': 'workAt', 'from_': 'Person', 'to': 'Organisation', 'properties': []}]}
+=========================== short test summary info ============================
+FAILED tests/test_text2cypher_json.py::test_suite_1b_json[q0] - AssertionErro...
+FAILED tests/test_text2cypher_json.py::test_suite_1b_json[q4] - AssertionErro...
+=================== 2 failed, 28 passed in 99.30s (0:01:39) ====================
