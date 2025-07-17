@@ -21,8 +21,8 @@ class Property {
 }
 
 class GraphSchema {
-    nodes Node[]
-    edges Edge[]
+  nodes Node[]
+  edges Edge[]
 }
 
 // Used only for DDL schema pruning (optional)
@@ -30,16 +30,11 @@ class PrunedSchema {
   ddl string @description("Valid DDL statement")
 }
 
-// Used only for answering binary yes/no questions
-enum BinaryAnswer {
-  Yes
-  No
-}
 
 // --- Functions ---
 
 function Text2Cypher(question: string, schema: string) -> Query {
-  client OpenRouterMistralDevstralMedium
+  client OpenRouterGoogleGemini2Flash
   prompt #"
     Translate the given question into a valid Cypher query that respects the given graph schema.
 
@@ -79,7 +74,7 @@ function Text2Cypher(question: string, schema: string) -> Query {
 }
 
 function PruneSchema(question: string, schema: string) -> GraphSchema {
-  client OpenRouterMistralDevstralMedium
+  client OpenRouterGoogleGemini2Flash
   prompt #"
     Understand the given labelled property graph schema and the given user question. Your task
     is to return ONLY the subset of the schema (node labels, edge labels and properties) that is
@@ -91,7 +86,7 @@ function PruneSchema(question: string, schema: string) -> GraphSchema {
     - The edges are the relationships between the nodes.
     - Properties of nodes and edges are their attributes, which helps answer the question.
     </INSTRUCTIONS>
-
+Forum
 
     {{ _.role("user") }}
     <GRAPH_SCHEMA>
@@ -106,8 +101,8 @@ function PruneSchema(question: string, schema: string) -> GraphSchema {
   "#
 }
 
-function AnswerQuestionBinary(question: string, context: string) -> BinaryAnswer {
-  client OpenRouterMistralDevstralMedium
+function AnswerQuestionBinary(question: string, context: string) -> "Yes" | "No" {
+  client OpenRouterGoogleGemini2Flash
   prompt #"
     Answer the given question based on the provided context. Here's how to answer:
     - If the context shows a count of zero, or is empty, return "No".

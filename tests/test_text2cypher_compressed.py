@@ -47,7 +47,7 @@ def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
         if expected_boolean:
             # Run binary answer question prompt on the results
             binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
-            found.add(binary_answer.value)
+            found.add( binary_answer)
         else:
             if results is not None:
                 for v in results:

@@ -75,60 +75,54 @@ def parse_results(results_dict):
     return matrix, models
 
 
+def get_model_results(model, full_dicts, pruned_dicts):
+    """Return 2D arrays for a single model: (2, num_formats, num_questions)"""
+    formats = ["JSON", "XML", "YAML"]
+    full_results = []
+    pruned_results = []
+    for d in full_dicts:
+        s = d.get(model)
+        arr = np.array([1 if c == "." else 0 for c in s])
+        full_results.append(arr)
+    for d in pruned_dicts:
+        s = d.get(model)
+        arr = np.array([1 if c == "." else 0 for c in s])
+        pruned_results.append(arr)
+    return np.array(full_results), np.array(pruned_results), formats
+
+
 def main():
-    # --- Plot 1: Full schema results ---
-    full_results = [
-        (json_results_full, "JSON (Full Schema)"),
-        (xml_results_full, "XML (Full Schema)"),
-        (yaml_results_full, "YAML (Full Schema)"),
-    ]
-    fig1, axes1 = plt.subplots(1, 3, figsize=(18, 3))
-    for idx, (results_dict, title) in enumerate(full_results):
-        matrix, models = parse_results(results_dict)
-        ax = axes1[idx]
-        colors = [RED, GREEN]  # Red for fail, green for pass
-        cmap = ListedColormap(colors)
-        _ = ax.imshow(matrix, cmap=cmap, aspect="auto", vmin=0, vmax=1)
-        ax.set_xticks(range(matrix.shape[1]))
-        ax.set_xticklabels([f"Q{i+1}" for i in range(matrix.shape[1])], fontsize=6)
-        ax.set_yticks(range(len(models)))
-        ax.set_yticklabels(models, fontsize=8)
-        # ax.set_title(title, fontsize=12, fontweight="bold", pad=10)
-        ax.set_xticks(np.arange(-0.5, matrix.shape[1], 1), minor=True)
-        ax.set_yticks(np.arange(-0.5, len(models), 1), minor=True)
-        ax.grid(True, which="minor", color="white", linewidth=0.1)
-        plt.setp(ax.get_xticklabels(), rotation=45, ha="right")
+    models = list(json_results_full.keys())
+    full_dicts = [json_results_full, xml_results_full, yaml_results_full]
+    pruned_dicts = [json_results_pruned, xml_results_pruned, yaml_results_pruned]
+    num_questions = len(list(json_results_full.values())[0])
+    formats = ["JSON", "XML", "YAML"]
 
-    fig1.suptitle("Full Schema Results (No Pruning)", fontsize=16, fontweight="bold", y=1.05)
+    fig, axes = plt.subplots(len(models), 2, figsize=(18, 10), sharex=True)
+    if len(models) == 1:
+        axes = axes[np.newaxis, :]  # ensure 2D
+
+    for i, model in enumerate(models):
+        full, pruned, _ = get_model_results(model, full_dicts, pruned_dicts)
+        # Each is shape (3, num_questions)
+        for j, (data, title) in enumerate(zip([full, pruned], ["Full Schema", "Pruned Schema"])):
+            ax = axes[i, j]
+            im = ax.imshow(data, cmap=ListedColormap([RED, GREEN]), aspect="auto", vmin=0, vmax=1)
+            ax.set_yticks(range(3))
+            ax.set_yticklabels(formats, fontsize=14)
+            if i == len(models) - 1:
+                ax.set_xticks(range(num_questions))
+                ax.set_xticklabels([f"Q{k+1}" for k in range(num_questions)], fontsize=10)
+                plt.setp(ax.get_xticklabels(), rotation=45, ha="right")
+            else:
+                ax.set_xticks([])
+            ax.set_title(f"{model} - {title}", fontsize=20, pad=6)
+            ax.set_xticks(np.arange(-0.5, num_questions, 1), minor=True)
+            ax.set_yticks(np.arange(-0.5, 3, 1), minor=True)
+            ax.grid(True, which="minor", color="white", linewidth=0.1)
+
     plt.tight_layout()
-    plt.savefig("full_schema_results.png", dpi=300, bbox_inches="tight")
-
-    # --- Plot 2: Pruned schema results ---
-    pruned_results = [
-        (json_results_pruned, "JSON (Pruned Schema)"),
-        (xml_results_pruned, "XML (Pruned Schema)"),
-        (yaml_results_pruned, "YAML (Pruned Schema)"),
-    ]
-    fig2, axes2 = plt.subplots(1, 3, figsize=(18, 3))
-    for idx, (results_dict, title) in enumerate(pruned_results):
-        matrix, models = parse_results(results_dict)
-        ax = axes2[idx]
-        colors = [RED, GREEN]  # Red for fail, green for pass
-        cmap = ListedColormap(colors)
-        _ = ax.imshow(matrix, cmap=cmap, aspect="auto", vmin=0, vmax=1)
-        ax.set_xticks(range(matrix.shape[1]))
-        ax.set_xticklabels([f"Q{i+1}" for i in range(matrix.shape[1])], fontsize=6)
-        ax.set_yticks(range(len(models)))
-        ax.set_yticklabels(models, fontsize=8)
-        # ax.set_title(title, fontsize=12, fontweight="bold", pad=10)
-        ax.set_xticks(np.arange(-0.5, matrix.shape[1], 1), minor=True)
-        ax.set_yticks(np.arange(-0.5, len(models), 1), minor=True)
-        ax.grid(True, which="minor", color="white", linewidth=0.1)
-        plt.setp(ax.get_xticklabels(), rotation=45, ha="right")
-
-    fig2.suptitle("Pruned Schema Results", fontsize=16, fontweight="bold", y=1.05)
-    plt.tight_layout()
-    plt.savefig("pruned_schema_results.png", dpi=300, bbox_inches="tight")
+    plt.savefig("per_model_results.png", dpi=300, bbox_inches="tight")
 
 
 if __name__ == "__main__":

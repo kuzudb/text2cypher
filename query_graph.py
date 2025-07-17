@@ -37,6 +37,7 @@ def run_prune_json_schema_query(db_manager: KuzuDatabaseManager, question: str) 
 def run_prune_xml_schema_query(db_manager: KuzuDatabaseManager, question: str) -> None:
     schema_pruned = prune_json_schema(db_manager, question)
     schema_pruned_xml = db_manager.get_schema_xml(schema_pruned)
+    print(schema_pruned_xml)
     results = run_query(db_manager, schema_pruned_xml, question)
     print(results)
 
