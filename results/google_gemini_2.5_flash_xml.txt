@@ -1,0 +1,220 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.2, pytest-8.4.1, pluggy-1.6.0
+rootdir: /Users/prrao/code/text2cypher
+configfile: pyproject.toml
+collected 30 items
+
+tests/test_text2cypher_xml.py ......F.....F...F.........F...             [100%]
+
+=================================== FAILURES ===================================
+____________________________ test_suite_1a_xml[q6] _____________________________
+
+q = {'expected_values': ['India'], 'question': "What are the names of places from where the person ID 17592186048023 made comments that replied to posts tagged with 'Jamaica'?"}
+db_manager = <utils.KuzuDatabaseManager object at 0x101859e10>
+
+    @pytest.mark.parametrize("q", suite_1a)
+    def test_suite_1a_xml(q, db_manager):
+        schema_pruned = prune_json_schema(db_manager, q["question"])
+        schema_pruned_xml = db_manager.get_schema_xml(schema_pruned)
+>       _run_test_suite(db_manager, schema_pruned_xml, [q])
+
+tests/test_text2cypher_xml.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x101859e10>
+schema = '<structure>\n  <rel label="commentHasCreator" from="Comment" to="Person" />\n  <rel label="replyOfPost" from="Comment...>\n  <rel label="replyOfPost" />\n  <rel label="postHasTag" />\n  <rel label="commentIsLocatedIn" />\n</relationships>'
+test_cases = [{'expected_values': ['India'], 'question': "What are the names of places from where the person ID 17592186048023 made comments that replied to posts tagged with 'Jamaica'?"}]
+expected_boolean = False
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {'India'} in result set() for question: What are the names of places from where the person ID 17592186048023 made comments that replied to posts tagged with 'Jamaica'?
+E             Cypher query: MATCH (p1:Person)-[:commentHasCreator]->(c1:Comment)-[:replyOfPost]->(p2:Post)-[:postHasTag]->(t1:Tag), (c1)-[:commentIsLocatedIn]->(p3:Place) WHERE p1.ID = 17592186048023 AND toLower(t1.name) CONTAINS toLower('Jamaica') RETURN p3.name
+E           assert {'India'} <= set()
+E             
+E             Extra items in the left set:
+E             'India'
+
+tests/test_text2cypher_xml.py:51: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{'nodes': [{'label': 'Person', 'properties': [{'name': 'ID', 'type': 'INT64'}]}, {'label': 'Comment', 'properties': []}, {'label': 'Post', 'properties': []}, {'label': 'Tag', 'properties': [{'name': 'name', 'type': 'STRING'}]}, {'label': 'Place', 'properties': [{'name': 'name', 'type': 'STRING'}]}], 'edges': [{'label': 'commentHasCreator', 'from_': 'Comment', 'to': 'Person', 'properties': []}, {'label': 'replyOfPost', 'from_': 'Comment', 'to': 'Post', 'properties': []}, {'label': 'postHasTag', 'from_': 'Post', 'to': 'Tag', 'properties': []}, {'label': 'commentIsLocatedIn', 'from_': 'Comment', 'to': 'Place', 'properties': []}]}
+____________________________ test_suite_1b_xml[q2] _____________________________
+
+q = {'expected_values': [2293], 'question': 'What is the total number of persons who liked comments created by "Rafael Alonso"?'}
+db_manager = <utils.KuzuDatabaseManager object at 0x1019382f0>
+
+    @pytest.mark.parametrize("q", suite_1b)
+    def test_suite_1b_xml(q, db_manager):
+        schema_pruned = prune_json_schema(db_manager, q["question"])
+        schema_pruned_xml = db_manager.get_schema_xml(schema_pruned)
+>       _run_test_suite(db_manager, schema_pruned_xml, [q])
+
+tests/test_text2cypher_xml.py:70: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x1019382f0>
+schema = '<structure>\n  <rel label="commentHasCreator" from="Comment" to="Person" />\n  <rel label="likeComment" from="Person"...node>\n</nodes>\n<relationships>\n  <rel label="commentHasCreator" />\n  <rel label="likeComment" />\n</relationships>'
+test_cases = [{'expected_values': [2293], 'question': 'What is the total number of persons who liked comments created by "Rafael Alonso"?'}]
+expected_boolean = False
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {2293} in result {0} for question: What is the total number of persons who liked comments created by "Rafael Alonso"?
+E             Cypher query: MATCH (c1:Comment)<-[:commentHasCreator]-(p1:Person) WHERE toLower(p1.firstName) CONTAINS toLower('Rafael') AND toLower(p1.lastName) CONTAINS toLower('Alonso') WITH c1 MATCH (p2:Person)-[:likeComment]->(c1) RETURN count(DISTINCT p2)
+E           assert {2293} <= {0}
+E             
+E             Extra items in the left set:
+E             2293
+
+tests/test_text2cypher_xml.py:51: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{'nodes': [{'label': 'Comment', 'properties': []}, {'label': 'Person', 'properties': [{'name': 'firstName', 'type': 'STRING'}, {'name': 'lastName', 'type': 'STRING'}]}], 'edges': [{'label': 'commentHasCreator', 'from_': 'Comment', 'to': 'Person', 'properties': []}, {'label': 'likeComment', 'from_': 'Person', 'to': 'Comment', 'properties': []}]}
+____________________________ test_suite_1b_xml[q6] _____________________________
+
+q = {'expected_values': ['Hamid_Karzai'], 'question': 'For people who studied at "Indian_Institute_of_Science", what tag are they most interested in?'}
+db_manager = <utils.KuzuDatabaseManager object at 0x1017c7110>
+
+    @pytest.mark.parametrize("q", suite_1b)
+    def test_suite_1b_xml(q, db_manager):
+        schema_pruned = prune_json_schema(db_manager, q["question"])
+        schema_pruned_xml = db_manager.get_schema_xml(schema_pruned)
+>       _run_test_suite(db_manager, schema_pruned_xml, [q])
+
+tests/test_text2cypher_xml.py:70: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x1017c7110>
+schema = '<structure>\n  <rel label="studyAt" from="Person" to="Organisation" />\n  <rel label="hasInterest" from="Person" to="...">\n\n  </node>\n</nodes>\n<relationships>\n  <rel label="studyAt" />\n  <rel label="hasInterest" />\n</relationships>'
+test_cases = [{'expected_values': ['Hamid_Karzai'], 'question': 'For people who studied at "Indian_Institute_of_Science", what tag are they most interested in?'}]
+expected_boolean = False
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {'Hamid_Karzai'} in result set() for question: For people who studied at "Indian_Institute_of_Science", what tag are they most interested in?
+E             Cypher query: MATCH (p1:Person)-[:studyAt]->(o1:Organisation) WHERE toLower(o1.name) CONTAINS toLower('Indian_Institute_of_Science') WITH p1 MATCH (p1)-[:hasInterest]->(t1:Tag) RETURN t1.name ORDER BY count(t1) DESC LIMIT 1
+E           assert {'Hamid_Karzai'} <= set()
+E             
+E             Extra items in the left set:
+E             'Hamid_Karzai'
+
+tests/test_text2cypher_xml.py:51: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{'nodes': [{'label': 'Person', 'properties': []}, {'label': 'Organisation', 'properties': [{'name': 'name', 'type': 'STRING'}]}, {'label': 'Tag', 'properties': []}], 'edges': [{'label': 'studyAt', 'from_': 'Person', 'to': 'Organisation', 'properties': []}, {'label': 'hasInterest', 'from_': 'Person', 'to': 'Tag', 'properties': []}]}
+Error running query: Cannot evaluate expression with type AGGREGATE_FUNCTION.
+____________________________ test_suite_1c_xml[q6] _____________________________
+
+q = {'expected_values': ['Yes'], 'question': 'Are there any forums with the tag that person ID 10995116287854 is a member of?'}
+db_manager = <utils.KuzuDatabaseManager object at 0x101329070>
+
+    @pytest.mark.parametrize("q", suite_1c)
+    def test_suite_1c_xml(q, db_manager):
+        schema_pruned = prune_json_schema(db_manager, q["question"])
+        schema_pruned_xml = db_manager.get_schema_xml(schema_pruned)
+>       _run_test_suite(db_manager, schema_pruned_xml, [q], expected_boolean=True)
+
+tests/test_text2cypher_xml.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x101329070>
+schema = '<structure>\n  <rel label="forumHasTag" from="Forum" to="Tag" />\n  <rel label="hasMember" from="Forum" to="Person" /...\n\n  </node>\n</nodes>\n<relationships>\n  <rel label="forumHasTag" />\n  <rel label="hasMember" />\n</relationships>'
+test_cases = [{'expected_values': ['Yes'], 'question': 'Are there any forums with the tag that person ID 10995116287854 is a member of?'}]
+expected_boolean = True
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {'Yes'} in result {'No'} for question: Are there any forums with the tag that person ID 10995116287854 is a member of?
+E             Cypher query: MATCH (p1:Person)-[:hasMember]->(f1:Forum)-[:forumHasTag]->(t1:Tag) WHERE p1.ID = 10995116287854 RETURN t1.name
+E           assert {'Yes'} <= {'No'}
+E             
+E             Extra items in the left set:
+E             'Yes'
+
+tests/test_text2cypher_xml.py:51: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{'nodes': [{'label': 'Forum', 'properties': []}, {'label': 'Person', 'properties': [{'name': 'ID', 'type': 'INT64'}]}, {'label': 'Tag', 'properties': []}], 'edges': [{'label': 'forumHasTag', 'from_': 'Forum', 'to': 'Tag', 'properties': []}, {'label': 'hasMember', 'from_': 'Forum', 'to': 'Person', 'properties': []}]}
+=========================== short test summary info ============================
+FAILED tests/test_text2cypher_xml.py::test_suite_1a_xml[q6] - AssertionError:...
+FAILED tests/test_text2cypher_xml.py::test_suite_1b_xml[q2] - AssertionError:...
+FAILED tests/test_text2cypher_xml.py::test_suite_1b_xml[q6] - AssertionError:...
+FAILED tests/test_text2cypher_xml.py::test_suite_1c_xml[q6] - AssertionError:...
+=================== 4 failed, 26 passed in 91.28s (0:01:31) ====================

@@ -1,0 +1,66 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.2, pytest-8.4.1, pluggy-1.6.0
+rootdir: /Users/prrao/code/text2cypher
+configfile: pyproject.toml
+collected 30 items
+
+tests/test_text2cypher_yaml.py ..F...........................            [100%]
+
+=================================== FAILURES ===================================
+____________________________ test_suite_1a_yaml[q2] ____________________________
+
+q = {'expected_values': ['Mads', 'Haugland', 'Norwegian_School_of_Sport_Sciences'], 'question': 'What is the first/last name of the person who created post ID 962077547172, and where did they study?'}
+db_manager = <utils.KuzuDatabaseManager object at 0x103c02fd0>
+
+    @pytest.mark.parametrize("q", suite_1a)
+    def test_suite_1a_yaml(q, db_manager):
+        schema_pruned = prune_json_schema(db_manager, q["question"])
+        schema_pruned_yaml = db_manager.get_schema_yaml(schema_pruned)
+>       _run_test_suite(db_manager, schema_pruned_yaml, [q])
+
+tests/test_text2cypher_yaml.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x103c02fd0>
+schema = 'structure:\n  - label: postHasCreator\n    from: Post\n    to: Person\n  - label: studyAt\n    from: Person\n    to: ...onships:\n  - label: postHasCreator\n  - label: studyAt\n    properties:\n      - name: classYear\n        type: INT64'
+test_cases = [{'expected_values': ['Mads', 'Haugland', 'Norwegian_School_of_Sport_Sciences'], 'question': 'What is the first/last name of the person who created post ID 962077547172, and where did they study?'}]
+expected_boolean = False
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {'Mads', 'Haugland', 'Norwegian_School_of_Sport_Sciences'} in result set() for question: What is the first/last name of the person who created post ID 962077547172, and where did they study?
+E             Cypher query: MATCH (p1:Post)-[:postHasCreator]->(per1:Person) WHERE toString(p1.ID) CONTAINS '962077547172' MATCH (per1)-[:studyAt]->(org1:Organisation) RETURN per1.firstName, per1.lastName, org1.name
+E           assert {'Haugland', ...ort_Sciences'} <= set()
+E             
+E             Extra items in the left set:
+E             'Mads'
+E             'Haugland'
+E             'Norwegian_School_of_Sport_Sciences'
+
+tests/test_text2cypher_yaml.py:51: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{'nodes': [{'label': 'Post', 'properties': [{'name': 'ID', 'type': 'INT64'}]}, {'label': 'Person', 'properties': [{'name': 'firstName', 'type': 'STRING'}, {'name': 'lastName', 'type': 'STRING'}, {'name': 'ID', 'type': 'INT64'}]}, {'label': 'Organisation', 'properties': [{'name': 'ID', 'type': 'INT64'}, {'name': 'name', 'type': 'STRING'}]}], 'edges': [{'label': 'postHasCreator', 'from_': 'Post', 'to': 'Person', 'properties': []}, {'label': 'studyAt', 'from_': 'Person', 'to': 'Organisation', 'properties': [{'name': 'classYear', 'type': 'INT64'}]}]}
+Error running query: Catalog exception: function TOSTRING does not exist.
+=========================== short test summary info ============================
+FAILED tests/test_text2cypher_yaml.py::test_suite_1a_yaml[q2] - AssertionErro...
+=================== 1 failed, 29 passed in 156.48s (0:02:36) ===================

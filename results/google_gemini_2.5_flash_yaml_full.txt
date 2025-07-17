@@ -1,0 +1,462 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.2, pytest-8.4.1, pluggy-1.6.0
+rootdir: /Users/prrao/code/text2cypher
+configfile: pyproject.toml
+collected 30 items
+
+tests/test_text2cypher_yaml_full.py ....F.FF.F..F.F.......F...FF..       [100%]
+
+=================================== FAILURES ===================================
+____________________________ test_suite_1a_yaml[q4] ____________________________
+
+q = {'expected_values': ['Akihiko'], 'question': 'What are the first names of persons with the last name "Choi" who are members of forums whose title contains "John Brown"?'}
+db_manager = <utils.KuzuDatabaseManager object at 0x103604fc0>
+
+    @pytest.mark.parametrize("q", suite_1a)
+    def test_suite_1a_yaml(q, db_manager):
+        schema = db_manager.get_schema_dict
+        schema_yaml = db_manager.get_schema_yaml(schema)
+>       _run_test_suite(db_manager, schema_yaml, [q])
+
+tests/test_text2cypher_yaml_full.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x103604fc0>
+schema = 'structure:\n  - label: workAt\n    from: Person\n    to: Organisation\n  - label: forumHasTag\n    from: Forum\n    t...:\n      - name: joinDate\n        type: TIMESTAMP\n  - label: replyOfPost\n  - label: hasType\n  - label: hasInterest'
+test_cases = [{'expected_values': ['Akihiko'], 'question': 'What are the first names of persons with the last name "Choi" who are members of forums whose title contains "John Brown"?'}]
+expected_boolean = False
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {'Akihiko'} in result set() for question: What are the first names of persons with the last name "Choi" who are members of forums whose title contains "John Brown"?
+E             Cypher query: MATCH (p1:Person)-[:hasMember]->(f1:Forum) WHERE toLower(p1.lastName) = 'choi' AND toLower(f1.title) CONTAINS 'john brown' RETURN p1.firstName
+E           assert {'Akihiko'} <= set()
+E             
+E             Extra items in the left set:
+E             'Akihiko'
+
+tests/test_text2cypher_yaml_full.py:51: AssertionError
+____________________________ test_suite_1a_yaml[q6] ____________________________
+
+q = {'expected_values': ['India'], 'question': "What are the names of places from where the person ID 17592186048023 made comments that replied to posts tagged with 'Jamaica'?"}
+db_manager = <utils.KuzuDatabaseManager object at 0x1035916a0>
+
+    @pytest.mark.parametrize("q", suite_1a)
+    def test_suite_1a_yaml(q, db_manager):
+        schema = db_manager.get_schema_dict
+        schema_yaml = db_manager.get_schema_yaml(schema)
+>       _run_test_suite(db_manager, schema_yaml, [q])
+
+tests/test_text2cypher_yaml_full.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x1035916a0>
+schema = 'structure:\n  - label: workAt\n    from: Person\n    to: Organisation\n  - label: forumHasTag\n    from: Forum\n    t...:\n      - name: joinDate\n        type: TIMESTAMP\n  - label: replyOfPost\n  - label: hasType\n  - label: hasInterest'
+test_cases = [{'expected_values': ['India'], 'question': "What are the names of places from where the person ID 17592186048023 made comments that replied to posts tagged with 'Jamaica'?"}]
+expected_boolean = False
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {'India'} in result set() for question: What are the names of places from where the person ID 17592186048023 made comments that replied to posts tagged with 'Jamaica'?
+E             Cypher query: MATCH (p1:Person)-[:commentHasCreator]->(c1:Comment)-[:replyOfPost]->(p2:Post)-[:postHasTag]->(t1:Tag) WHERE p1.ID = 17592186048023 AND toLower(t1.name) CONTAINS toLower('Jamaica') WITH c1 MATCH (c1)-[:commentIsLocatedIn]->(pl1:Place) RETURN DISTINCT pl1.name
+E           assert {'India'} <= set()
+E             
+E             Extra items in the left set:
+E             'India'
+
+tests/test_text2cypher_yaml_full.py:51: AssertionError
+____________________________ test_suite_1a_yaml[q7] ____________________________
+
+q = {'expected_values': [13194139534410], 'question': 'What are the distinct IDs of persons born after 1 January 1990 who are moderators of Forums containing the term "Emilio Fernandez"?'}
+db_manager = <utils.KuzuDatabaseManager object at 0x1035917b0>
+
+    @pytest.mark.parametrize("q", suite_1a)
+    def test_suite_1a_yaml(q, db_manager):
+        schema = db_manager.get_schema_dict
+        schema_yaml = db_manager.get_schema_yaml(schema)
+>       _run_test_suite(db_manager, schema_yaml, [q])
+
+tests/test_text2cypher_yaml_full.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x1035917b0>
+schema = 'structure:\n  - label: workAt\n    from: Person\n    to: Organisation\n  - label: forumHasTag\n    from: Forum\n    t...:\n      - name: joinDate\n        type: TIMESTAMP\n  - label: replyOfPost\n  - label: hasType\n  - label: hasInterest'
+test_cases = [{'expected_values': [13194139534410], 'question': 'What are the distinct IDs of persons born after 1 January 1990 who are moderators of Forums containing the term "Emilio Fernandez"?'}]
+expected_boolean = False
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {13194139534410} in result set() for question: What are the distinct IDs of persons born after 1 January 1990 who are moderators of Forums containing the term "Emilio Fernandez"?
+E             Cypher query: MATCH (a1:Person)-[:hasModerator]->(f1:Forum) WHERE a1.birthday > date('1990-01-01') AND toLower(f1.title) CONTAINS toLower('Emilio Fernandez') RETURN DISTINCT a1.ID
+E           assert {13194139534410} <= set()
+E             
+E             Extra items in the left set:
+E             13194139534410
+
+tests/test_text2cypher_yaml_full.py:51: AssertionError
+____________________________ test_suite_1a_yaml[q9] ____________________________
+
+q = {'expected_values': [24189255819727, 8796093029267], 'question': 'What are the unique IDs of persons who commented on posts that have the tag "Cate_Blanchett"?'}
+db_manager = <utils.KuzuDatabaseManager object at 0x1035ebc50>
+
+    @pytest.mark.parametrize("q", suite_1a)
+    def test_suite_1a_yaml(q, db_manager):
+        schema = db_manager.get_schema_dict
+        schema_yaml = db_manager.get_schema_yaml(schema)
+>       _run_test_suite(db_manager, schema_yaml, [q])
+
+tests/test_text2cypher_yaml_full.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x1035ebc50>
+schema = 'structure:\n  - label: workAt\n    from: Person\n    to: Organisation\n  - label: forumHasTag\n    from: Forum\n    t...:\n      - name: joinDate\n        type: TIMESTAMP\n  - label: replyOfPost\n  - label: hasType\n  - label: hasInterest'
+test_cases = [{'expected_values': [24189255819727, 8796093029267], 'question': 'What are the unique IDs of persons who commented on posts that have the tag "Cate_Blanchett"?'}]
+expected_boolean = False
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {8796093029267, 24189255819727} in result set() for question: What are the unique IDs of persons who commented on posts that have the tag "Cate_Blanchett"?
+E             Cypher query: MATCH (p1:Person)-[:commentHasCreator]->(c1:Comment)-[:replyOfPost]->(p2:Post)-[:postHasTag]->(t1:Tag) WHERE toLower(t1.name) CONTAINS toLower('Cate_Blanchett') RETURN DISTINCT p1.ID
+E           assert {879609302926...4189255819727} <= set()
+E             
+E             Extra items in the left set:
+E             8796093029267
+E             24189255819727
+
+tests/test_text2cypher_yaml_full.py:51: AssertionError
+____________________________ test_suite_1b_yaml[q2] ____________________________
+
+q = {'expected_values': [2293], 'question': 'What is the total number of persons who liked comments created by "Rafael Alonso"?'}
+db_manager = <utils.KuzuDatabaseManager object at 0x1036b89f0>
+
+    @pytest.mark.parametrize("q", suite_1b)
+    def test_suite_1b_yaml(q, db_manager):
+        schema = db_manager.get_schema_dict
+        schema_yaml = db_manager.get_schema_yaml(schema)
+>       _run_test_suite(db_manager, schema_yaml, [q])
+
+tests/test_text2cypher_yaml_full.py:70: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x1036b89f0>
+schema = 'structure:\n  - label: workAt\n    from: Person\n    to: Organisation\n  - label: forumHasTag\n    from: Forum\n    t...:\n      - name: joinDate\n        type: TIMESTAMP\n  - label: replyOfPost\n  - label: hasType\n  - label: hasInterest'
+test_cases = [{'expected_values': [2293], 'question': 'What is the total number of persons who liked comments created by "Rafael Alonso"?'}]
+expected_boolean = False
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {2293} in result {0} for question: What is the total number of persons who liked comments created by "Rafael Alonso"?
+E             Cypher query: MATCH (p1:Person)-[:commentHasCreator]->(c1:Comment)<-[:likeComment]-(p2:Person) WHERE toLower(p1.firstName) CONTAINS toLower('Rafael') AND toLower(p1.lastName) CONTAINS toLower('Alonso') RETURN count(DISTINCT p2) AS totalPersons
+E           assert {2293} <= {0}
+E             
+E             Extra items in the left set:
+E             2293
+
+tests/test_text2cypher_yaml_full.py:51: AssertionError
+____________________________ test_suite_1b_yaml[q4] ____________________________
+
+q = {'expected_values': [278], 'question': 'What is the total number of forums moderated by employees of "Air_Tanzania"?.'}
+db_manager = <utils.KuzuDatabaseManager object at 0x1036617e0>
+
+    @pytest.mark.parametrize("q", suite_1b)
+    def test_suite_1b_yaml(q, db_manager):
+        schema = db_manager.get_schema_dict
+        schema_yaml = db_manager.get_schema_yaml(schema)
+>       _run_test_suite(db_manager, schema_yaml, [q])
+
+tests/test_text2cypher_yaml_full.py:70: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x1036617e0>
+schema = 'structure:\n  - label: workAt\n    from: Person\n    to: Organisation\n  - label: forumHasTag\n    from: Forum\n    t...:\n      - name: joinDate\n        type: TIMESTAMP\n  - label: replyOfPost\n  - label: hasType\n  - label: hasInterest'
+test_cases = [{'expected_values': [278], 'question': 'What is the total number of forums moderated by employees of "Air_Tanzania"?.'}]
+expected_boolean = False
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {278} in result {0} for question: What is the total number of forums moderated by employees of "Air_Tanzania"?.
+E             Cypher query: MATCH (o1:Organisation)<-[r1:workAt]-(p1:Person)-[r2:hasModerator]->(f1:Forum) WHERE toLower(o1.name) CONTAINS toLower('Air_Tanzania') RETURN count(f1)
+E           assert {278} <= {0}
+E             
+E             Extra items in the left set:
+E             278
+
+tests/test_text2cypher_yaml_full.py:51: AssertionError
+____________________________ test_suite_1c_yaml[q2] ____________________________
+
+q = {'expected_values': ['Yes'], 'question': "Is there a person with the last name 'Gurung' who's a moderator of a forum with the tag 'Norah_Jones'?"}
+db_manager = <utils.KuzuDatabaseManager object at 0x1036bd1d0>
+
+    @pytest.mark.parametrize("q", suite_1c)
+    def test_suite_1c_yaml(q, db_manager):
+        schema = db_manager.get_schema_dict
+        schema_yaml = db_manager.get_schema_yaml(schema)
+>       _run_test_suite(db_manager, schema_yaml, [q], expected_boolean=True)
+
+tests/test_text2cypher_yaml_full.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x1036bd1d0>
+schema = 'structure:\n  - label: workAt\n    from: Person\n    to: Organisation\n  - label: forumHasTag\n    from: Forum\n    t...:\n      - name: joinDate\n        type: TIMESTAMP\n  - label: replyOfPost\n  - label: hasType\n  - label: hasInterest'
+test_cases = [{'expected_values': ['Yes'], 'question': "Is there a person with the last name 'Gurung' who's a moderator of a forum with the tag 'Norah_Jones'?"}]
+expected_boolean = True
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {'Yes'} in result {'No'} for question: Is there a person with the last name 'Gurung' who's a moderator of a forum with the tag 'Norah_Jones'?
+E             Cypher query: MATCH (p1:Person)-[:hasModerator]->(f1:Forum)-[:forumHasTag]->(t1:Tag) WHERE toLower(p1.lastName) CONTAINS toLower('Gurung') AND toLower(t1.name) CONTAINS toLower('Norah_Jones') RETURN p1.firstName, p1.lastName
+E           assert {'Yes'} <= {'No'}
+E             
+E             Extra items in the left set:
+E             'Yes'
+
+tests/test_text2cypher_yaml_full.py:51: AssertionError
+____________________________ test_suite_1c_yaml[q6] ____________________________
+
+q = {'expected_values': ['Yes'], 'question': 'Are there any forums with the tag that person ID 10995116287854 is a member of?'}
+db_manager = <utils.KuzuDatabaseManager object at 0x10364f8f0>
+
+    @pytest.mark.parametrize("q", suite_1c)
+    def test_suite_1c_yaml(q, db_manager):
+        schema = db_manager.get_schema_dict
+        schema_yaml = db_manager.get_schema_yaml(schema)
+>       _run_test_suite(db_manager, schema_yaml, [q], expected_boolean=True)
+
+tests/test_text2cypher_yaml_full.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x10364f8f0>
+schema = 'structure:\n  - label: workAt\n    from: Person\n    to: Organisation\n  - label: forumHasTag\n    from: Forum\n    t...:\n      - name: joinDate\n        type: TIMESTAMP\n  - label: replyOfPost\n  - label: hasType\n  - label: hasInterest'
+test_cases = [{'expected_values': ['Yes'], 'question': 'Are there any forums with the tag that person ID 10995116287854 is a member of?'}]
+expected_boolean = True
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {'Yes'} in result {'No'} for question: Are there any forums with the tag that person ID 10995116287854 is a member of?
+E             Cypher query: MATCH (p1:Person)-[:hasMember]->(f1:Forum)-[:forumHasTag]->(t1:Tag) WHERE p1.ID = 10995116287854 RETURN DISTINCT t1.name
+E           assert {'Yes'} <= {'No'}
+E             
+E             Extra items in the left set:
+E             'Yes'
+
+tests/test_text2cypher_yaml_full.py:51: AssertionError
+____________________________ test_suite_1c_yaml[q7] ____________________________
+
+q = {'expected_values': ['Yes'], 'question': 'Did any person from Toronto create a comment with the tag "Winston_Churchill"?'}
+db_manager = <utils.KuzuDatabaseManager object at 0x10364f7d0>
+
+    @pytest.mark.parametrize("q", suite_1c)
+    def test_suite_1c_yaml(q, db_manager):
+        schema = db_manager.get_schema_dict
+        schema_yaml = db_manager.get_schema_yaml(schema)
+>       _run_test_suite(db_manager, schema_yaml, [q], expected_boolean=True)
+
+tests/test_text2cypher_yaml_full.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_manager = <utils.KuzuDatabaseManager object at 0x10364f7d0>
+schema = 'structure:\n  - label: workAt\n    from: Person\n    to: Organisation\n  - label: forumHasTag\n    from: Forum\n    t...:\n      - name: joinDate\n        type: TIMESTAMP\n  - label: replyOfPost\n  - label: hasType\n  - label: hasInterest'
+test_cases = [{'expected_values': ['Yes'], 'question': 'Did any person from Toronto create a comment with the tag "Winston_Churchill"?'}]
+expected_boolean = True
+
+    def _run_test_suite(db_manager, schema, test_cases, expected_boolean=False):
+        for q in test_cases:
+            query, results = run_query(db_manager, schema, q["question"])
+            expected = set(q["expected_values"])
+            found = set()
+            if expected_boolean:
+                # Run binary answer question prompt on the results
+                binary_answer = b.AnswerQuestionBinary(q["question"], str(results))
+                found.add(binary_answer.value)
+            else:
+                if results is not None:
+                    for v in results:
+                        if isinstance(v, list):
+                            found.update(v)
+                        else:
+                            found.add(v)
+>           assert (
+                expected <= found
+            ), (
+                f"Expected all of {expected} in result {found} for question: {q['question']}\n"
+                f"Cypher query: {query}"
+            )
+E           AssertionError: Expected all of {'Yes'} in result {'No'} for question: Did any person from Toronto create a comment with the tag "Winston_Churchill"?
+E             Cypher query: MATCH (a1:Person)-[:personIsLocatedIn]->(a2:Place), (a1)-[:commentHasCreator]->(a3:Comment)-[:commentHasTag]->(a4:Tag) WHERE toLower(a2.name) CONTAINS toLower('Toronto') AND toLower(a4.name) CONTAINS toLower('Winston_Churchill') RETURN COUNT(a3) > 0
+E           assert {'Yes'} <= {'No'}
+E             
+E             Extra items in the left set:
+E             'Yes'
+
+tests/test_text2cypher_yaml_full.py:51: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_text2cypher_yaml_full.py::test_suite_1a_yaml[q4] - Assertio...
+FAILED tests/test_text2cypher_yaml_full.py::test_suite_1a_yaml[q6] - Assertio...
+FAILED tests/test_text2cypher_yaml_full.py::test_suite_1a_yaml[q7] - Assertio...
+FAILED tests/test_text2cypher_yaml_full.py::test_suite_1a_yaml[q9] - Assertio...
+FAILED tests/test_text2cypher_yaml_full.py::test_suite_1b_yaml[q2] - Assertio...
+FAILED tests/test_text2cypher_yaml_full.py::test_suite_1b_yaml[q4] - Assertio...
+FAILED tests/test_text2cypher_yaml_full.py::test_suite_1c_yaml[q2] - Assertio...
+FAILED tests/test_text2cypher_yaml_full.py::test_suite_1c_yaml[q6] - Assertio...
+FAILED tests/test_text2cypher_yaml_full.py::test_suite_1c_yaml[q7] - Assertio...
+======================== 9 failed, 21 passed in 47.41s =========================
