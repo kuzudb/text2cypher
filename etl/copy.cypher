@@ -1,9 +1,9 @@
-COPY Comment FROM 'csv/comment_0_0.csv' ;
+COPY Comment FROM 'csv/comment_0_*.csv' ;
 COPY Forum FROM 'csv/forum_0_0.csv' ;
 COPY Organisation FROM 'csv/organisation_0_0.csv' ;
 COPY Person FROM 'csv/person_0_0.csv' ;
 COPY Place FROM 'csv/place_0_0.csv' ;
-COPY Post FROM 'csv/post_0_0.csv' ;
+COPY Post FROM 'csv/post_0_*.csv' ;
 COPY Tag FROM 'csv/tag_0_0.csv' ;
 COPY Tagclass FROM 'csv/tagclass_0_0.csv' ;
 COPY containerOf FROM 'csv/forum_containerOf_post_0_0.csv' ;
