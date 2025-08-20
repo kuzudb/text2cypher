@@ -37,6 +37,9 @@ uv run download_dataset.py
 uv run create_graph.py
 ```
 
+> [!NOTE]: The download script has been tested on macOS and Linux and depends on zstd. If
+> you're using Windows to run this, we recommend using [WSL](https://github.com/microsoft/WSL).
+
 ## Sample queries
 
 Run sample queries on the graph using the scripts with the name `query_*.py`.
